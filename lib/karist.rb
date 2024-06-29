@@ -3,11 +3,13 @@ require "yaml"
 require "json"
 
 require_relative "karist/version"
-require_relative "karist/array"
-require_relative "karist/hash"
-require_relative "karist/string"
-require_relative "karist/true_false"
-require_relative "karist/integer"
+require_relative "karist/patch/array"
+require_relative "karist/patch/hash"
+require_relative "karist/patch/string"
+require_relative "karist/patch/true_false"
+require_relative "karist/patch/integer"
+
+require_relative "karist/generator"
 
 module Karist
   class GenericError < StandardError; end

@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "bundler/setup"
+require "karist"
+require "optparse"
+include Karist
+
+params = {}
+OptionParser.new do |opts|
+  opts.banner = "Karist #{VERSION}"
+  opts.on("-i", "--init PATH", "Generate a default project at PATH") do |path|
+    Generator.copy_to_path!(path)
+    exit(0)
+  end
+  opts.on("-h", "--help") do
+    puts opts
+    exit(0)
+  end
+end.parse!
