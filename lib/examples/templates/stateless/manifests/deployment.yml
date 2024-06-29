@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:
+    _concat:
+        items:
+            - $name
+            - deployment
+        sep: "-"
+  labels:
+    _merge: common.labels
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+        _merge: common.labels
+  template:
+    metadata:
+      labels:
+        _merge: common.labels
+    spec:
+      containers:
+      - name: $name
+        image: 
+            _concat:
+                items:
+                    - $image.repo
+                    - $image.tag
+                sep: ":"
+        ports:
+        - containerPort: $port

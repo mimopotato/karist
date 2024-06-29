@@ -2,13 +2,12 @@ class String
   # "_ -> x" = y
   # "_from x" = y
   def mutate(mutations)
-    case self.split(" ")
-    in ["_", "->", from]
-      return mutations.dig_str(from, mutations)
-    in ["_from", from]
+    case self.split("$")
+    in ["", from]
       return mutations.dig_str(from, mutations)
     else
-      return self
     end
+
+    return self
   end
 end
