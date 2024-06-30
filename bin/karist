@@ -19,7 +19,7 @@ class KaristCLI < Thor
   
   desc "init PATH", "Generates a initial project at PATH"
   def init(path)
-    Generate.copy_to_path!(path)
+    Generator.copy_to_path!(path)
     exit(0)
   end
 
@@ -46,26 +46,4 @@ class KaristCLI < Thor
 end
 
 KaristCLI.start(ARGV)
-# params = {dry_run: false}
 
-# OptionParser.new do |opts|
-#   opts.banner = "Karist #{VERSION}"
-#   opts.on("-i", "--init PATH", "Generate a default project at PATH") do |path|
-#     Generator.copy_to_path!(path)
-#     exit(0)
-#   end
-
-#   opts.on("-r", "--render ENV", "Renders all YAML files for environment") do |env|
-#     opts.on("-d", "--dry-run", "Shows rendered templates in stdout") {|r| params[:dry_run] = r}
-
-#     renderer = Renderer.new(env)
-#     renderer.render
-    
-#     exit(0)
-#   end
-
-#   opts.on("-h", "--help") do
-#     puts opts
-#     exit(0)
-#   end
-# end.parse!
