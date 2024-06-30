@@ -19,6 +19,7 @@ jobs:
         env:
           RUBYGEMS_API_KEY: "${{secrets.RUBYGEMS_API_KEY}}"
         run: |
+          echo ":rubygems_api_key: $RUBYGEMS_API_KEY" >> ~/.gem/credentials
           bundler install -j4
           gem build -o karist.gem
-          gem push ./karist.gem --key $RUBYGEMS_API_KEY
+          gem push ./karist.gem --key rubygems_api_key
