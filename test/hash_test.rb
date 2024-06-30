@@ -11,7 +11,7 @@ class HashTest < Test::Unit::TestCase
       },
       key_c: {
         _concat: {
-          items: ["a", "b", "_ -> mutation_concat.concat_c"],
+          items: ["a", "b", "$mutation_concat.concat_c"],
           sep: " "
         }
       },
@@ -19,7 +19,7 @@ class HashTest < Test::Unit::TestCase
         _sum: [1, 2, 3]
       },
       key_e: {
-        _sum: ["_ -> mutation_sum.sum_a", 3]
+        _sum: ["$mutation_sum.sum_a", 3]
       }
     }
   }
@@ -33,8 +33,8 @@ class HashTest < Test::Unit::TestCase
       concat_c: "c"
     },
     mutation_sum: {
-      sum_a: "_ -> mutation_sum.sum_b",
-      sum_b: "_ -> mutation_sum.sum_c",
+      sum_a: "$mutation_sum.sum_b",
+      sum_b: "$mutation_sum.sum_c",
       sum_c: 2
     }
   }
@@ -60,7 +60,7 @@ class HashTest < Test::Unit::TestCase
     assert_equal results[:key_a][:key_d], 6
   end
 
-  test "hashes get mutated (_sum)(_ -> string call)" do
+  test "hashes get mutated (_sum)($var string call)" do
     results = struct.mutate(mutations)
     assert_equal results[:key_a][:key_e], 5
   end

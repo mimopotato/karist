@@ -22,6 +22,6 @@ class GeneratorTest < Test::Unit::TestCase
       assert File.exist?(path)
     end
   
-    FileUtils.rm_f("./tmp")
+    FileUtils.rm_rf("./tmp")
   end
 end

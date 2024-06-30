@@ -89,7 +89,7 @@ Ainsi, des fonctions (toujours préfixées par _) sont utilisables auprès des m
 yaml
 apiVersion: v1
 metadata:
-  name: _-> release.name
+  name: $release.name
   labels:
     _merge: release.labels
     karist/template-name: stateless-app
@@ -116,4 +116,14 @@ metadata:
   labels:
     karist/template-name: stateless-app
     key: value
+```
+## Functions
+
+WIP
+
+```
+$variable: inserts a string from custom.yml
+_merge: merges the current dictionnary with dictionnary from custom.yml
+_sum: recursively sums an array of values (curry)
+_concat: recursively concatenates an array of values (curry)
 ```

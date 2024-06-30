@@ -1,2 +1,16 @@
 ---
-name: app-name
+name: nginx
+
+image:
+  repo: nginx
+  tag: latest
+
+port: 80
+
+common:
+  labels:
+    app: nginx
+    karist.io/image: 
+      _concat:
+        items: ["$image.repo", "$image.tag"]
+        sep: ":"

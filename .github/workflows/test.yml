@@ -1,4 +1,4 @@
-name: Ruby CI
+name: Test using unit-test
 
 on:
   push:

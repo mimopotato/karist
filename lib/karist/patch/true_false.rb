@@ -9,3 +9,9 @@ class FalseClass
     self
   end
 end
+
+class NilClass
+  def mutate(mutations)
+    self
+  end
+end
