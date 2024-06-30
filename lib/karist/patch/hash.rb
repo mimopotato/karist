@@ -70,4 +70,7 @@ class Hash
     end
   end
 
+  def deep_stringify_keys
+    deep_transform_keys(&:to_s)
+  end
 end

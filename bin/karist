@@ -2,19 +2,70 @@
 # frozen_string_literal: true
 
 require "bundler/setup"
+require "thor"
 require "karist"
+
 require "optparse"
+
 include Karist
 
-params = {}
-OptionParser.new do |opts|
-  opts.banner = "Karist #{VERSION}"
-  opts.on("-i", "--init PATH", "Generate a default project at PATH") do |path|
-    Generator.copy_to_path!(path)
+class << Thor
+  def exit_on_failure?
+    true
+  end
+end
+
+class KaristCLI < Thor
+  
+  desc "init PATH", "Generates a initial project at PATH"
+  def init(path)
+    Generate.copy_to_path!(path)
     exit(0)
   end
-  opts.on("-h", "--help") do
-    puts opts
-    exit(0)
+
+  desc "render ENV", "Render releases from environment ENV", default: "development"
+  option :dry_run, type: :boolean, desc: "Shows result from mutations to STDOUT", default: false
+  option :root, type: :string, desc: "Path to root Karist project", default: Dir.pwd
+  option :output, type: :string, desc: "Indicates where final files should be saved", default: "#{Dir.pwd}/output"
+  def render(env)
+    Dir.chdir(options[:root]) do
+      app = Renderer.new(env)
+      app.render
+
+      if options[:dry_run]
+        puts app.display
+        exit(0)
+      end
+
+      if app.save_to_path!(options[:output])
+        puts "Files were generated successfully ! 🥳"
+        exit(0)
+      end
+    end
   end
-end.parse!
+end
+
+KaristCLI.start(ARGV)
+# params = {dry_run: false}
+
+# OptionParser.new do |opts|
+#   opts.banner = "Karist #{VERSION}"
+#   opts.on("-i", "--init PATH", "Generate a default project at PATH") do |path|
+#     Generator.copy_to_path!(path)
+#     exit(0)
+#   end
+
+#   opts.on("-r", "--render ENV", "Renders all YAML files for environment") do |env|
+#     opts.on("-d", "--dry-run", "Shows rendered templates in stdout") {|r| params[:dry_run] = r}
+
+#     renderer = Renderer.new(env)
+#     renderer.render
+    
+#     exit(0)
+#   end
+
+#   opts.on("-h", "--help") do
+#     puts opts
+#     exit(0)
+#   end
+# end.parse!

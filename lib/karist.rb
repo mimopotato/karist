@@ -10,6 +10,9 @@ require_relative "karist/patch/true_false"
 require_relative "karist/patch/integer"
 
 require_relative "karist/generator"
+require_relative "karist/renderer"
+require_relative "karist/release_file"
+require_relative "karist/release"
 
 module Karist
   class GenericError < StandardError; end
