@@ -21,6 +21,7 @@ jobs:
         run: |
           mkdir -p ~/.gem
           echo ":rubygems_api_key: $RUBYGEMS_API_KEY" >> ~/.gem/credentials
+          chmod 0600 /home/runner/.gem/credentials
           bundler install -j4
           gem build -o karist.gem
           gem push ./karist.gem --key rubygems_api_key
