@@ -14,6 +14,8 @@ jobs:
         uses: ruby/setup-ruby@ec02537da5712d66d4d50a0f33b7eb52773b5ed1
 
       - name: Build and push gem
+        env:
+          RUBYGEMS_API_KEY: "${{secrets.RUBYGEMS_API_KEY}}"
         run: |
           bundler install -j4
           gem build -o karist.gem
