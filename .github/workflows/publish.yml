@@ -9,12 +9,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@ec02537da5712d66d4d50a0f33b7eb52773b5ed1
 
-      - name: Release Gem
-        if: contains(github.ref, 'refs/tags/v')
-        uses: cadwallion/publish-rubygems-action@master
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          RUBYGEMS_API_KEY: ${{secrets.RUBYGEMS_API_KEY}}
-          RELEASE_COMMAND: rake release
+      - name: Build and push gem
+        run: |
+          bundler install -j4
+          gem build -o karist.gem
+          gem push ./karist.gem --key ${RUBYGEMS_API_KEY}
