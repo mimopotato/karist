@@ -89,4 +89,33 @@ class HashTest < Test::Unit::TestCase
     assert_equal results[:key_a][:key_f][0][:svcs][0][:port], 80
     assert_equal results[:key_a][:key_f][1][:svcs][0][:port], 80
   end
+
+  test "hashes get mutated (_loop in _loop)" do
+    local_struct = {
+      key_a: {
+        _loop: {
+          _items: "items",
+          _block: {
+            value: "$value",
+            sub_loop: {
+              _loop: {
+                _items: "items",
+                _block: {
+                  sub_value: "$sub_value" } } } } } } }
+
+    local_mutations = {
+      items: [
+        { value: "v-1", sub_value: "sv-1" },
+        { value: "v-2", sub_value: "sv-2" }
+      ]
+    }
+
+    results = local_struct.mutate(local_mutations)
+    assert_equal results[:key_a][0][:value], "v-1"
+    assert_equal results[:key_a][0][:sub_loop][0][:sub_value], "sv-1"
+    assert_equal results[:key_a][0][:sub_loop][1][:sub_value], "sv-2"
+    assert_equal results[:key_a][1][:value], "v-2"
+    assert_equal results[:key_a][1][:sub_loop][0][:sub_value], "sv-1"
+    assert_equal results[:key_a][1][:sub_loop][1][:sub_value], "sv-2"
+  end
 end
