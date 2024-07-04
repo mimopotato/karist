@@ -1,129 +1,56 @@
+
 # Karist
 
-Karist est une manière plus simple de configurer et déployer ses applications sur Kubernetes. Plus concrètement :
+Karist simplifies the development and deployment of manifests for Kubernetes, and falls somewhere between Kustomize and Helm.
 
-* Aucun CRD requis dans vos clusters Kubernetes
-* Support natif d'une infinité d'environnement
-* Structure opiniatée de repository Git
-* Implémentation de fonctions muables
-* Une CLI pour initialiser, prédire et appliquer les changements
 
-Il peut être comparé avec **Helm**, bien que plus limité dans ses fonctions.
 
 ## Installation
 
-Karist dépend entièrement de Ruby (> 3.0) car il est construit avec, mais aucune connaissance de Ruby n'est nécessaire pour utiliser cette application.
-
+The recommended ways
 ```bash
+rbenv install 3.1.0
+rbenv global 3.1.0
+
 gem install karist
+karist help
 ```
 
-## Quick start
-
-### Concepts
-
-Karist s'article autour des opinions suivants:
-
-* Un fichier YAML ne doit contenir que du YAML
-* Les environnements concernent des valeurs parfois communes, parfois différentes
-* Un déploiement Kubernetes a besoin de plusieurs manifests (Deployment, Service, Ingress, ServiceAccount...), tous doivent être liés
-* L'utilisation des fonctions natives de Kubernetes doit être mis en avant
-
-Le lexique suivant s'applique à Karist:
-
-* `template`: un template est un dossier contenant plusieurs manifests Kubernetes. Un bon manifest doit pouvoir être modifié aisément par injection de variables.
-* `customization`: une customization est l'application de variables à un manifest Kubernetes appartant à un template.
-* `release`: une release est l'instantiation d'un template en accord avec des customizations appliquées à ses manifests.
-* `environment`: un environnement possède une ou plusieurs releases, qui sont des templates adaptés au contexte de l'environnement.
+You can also use a Docker container to run Karist.
 
 ```bash
-karist --init .
+docker run -ti --name karist ruby:alpine sh
+$ gem install karist
+karist help
 ```
 
-Crée une structure initiale dans le répertoire courant, directement utilisable.
 
-```
-.
-├── templates
-│   ├── stateless-app
-│   │   ├── karist.yml
-│   │   └── manifests
-│   │       ├── deployment.yml
-│   │       ├── service.yml
-│   │       └── serviceaccount.yml
-│   └── yourapp
-├── environments
-│   ├── development
-│   │   ├── releases.yml
-│   │   └── nginx
-│   │       └── custom.yml
-│   ├── local
-│   └── production
-└── karist.yml
-```
+## Usage/Examples
 
-Le fichier releases.yml indique par défaut ceci:
-
-```
-releases:
-  - name: nginx
-    namespace: default
-    template: stateless-app
-```
-
-Lors de l'exécution de la commande suivante :
 
 ```bash
-karist --render --env development
+$ karist help
+
+Commands:
+  karist help [COMMAND]  # Describe available commands or one specific command
+  karist init PATH       # Generates a initial project at PATH
+  karist render ENV      # Render releases from environment ENV
 ```
 
-Karist va automatiquement utiliser les manifests de `stateless-app` et charger les variables définies dans le fichier `custom.yml`.
 
-## Variables et fonctions
+## Running Tests
 
-Helm utilise un moteur de langage qui rend selon moi la lecture de fichiers YAML complexe. En créant Karist, j'ai préféré mettre en avant la simplicité de YAML en implémentant une logique **au niveau des valeurs** des types standards.
-Ainsi, des fonctions (toujours préfixées par _) sont utilisables auprès des manifests:
+Tests don't require any external file or interaction. You can run tests using the following commande (test-unit):
 
-```
-# templates/stateless-app/manifests/deployment.yml
-yaml
-apiVersion: v1
-metadata:
-  name: $release.name
-  labels:
-    _merge: release.labels
-    karist/template-name: stateless-app
+```bash
+  TESTOPTS="-v" rake test
 ```
 
-```yaml
-# environments/development/nginx/custom.yml
-release:
-  name: nginx
-  labels:
-    key: value
-```
 
-Lors de l'évaluation du manifest, Karist remplace les fonctions par une évaluation. 
+## Documentation
 
-```yaml
-# karist --dry-render \
-#   ./templates/stateless-app/manifests/deployment.yml
-#   ./environments/development/nginx/custom.yml
+For more information regarding the use and particularities of Karist, consult the wiki of this GitHub repository!
+## License
 
-apiVersion: v1
-metadata:
-  name: nginx
-  labels:
-    karist/template-name: stateless-app
-    key: value
-```
-## Functions
+[MIT](https://choosealicense.com/licenses/mit/)
 
-WIP
-
-```
-$variable: inserts a string from custom.yml
-_merge: merges the current dictionnary with dictionnary from custom.yml
-_sum: recursively sums an array of values (curry)
-_concat: recursively concatenates an array of values (curry)
-```
