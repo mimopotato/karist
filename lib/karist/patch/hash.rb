@@ -1,7 +1,12 @@
 class Hash
   def mutate(mutations)
-    _merge(mutations)
+    loop_result = _loop(mutations)
+    return loop_result[0].flatten if loop_result[1]
 
+    merge_result = _merge(mutations)
+    return merge_result[0] if merge_result[1]
+
+    
     sum_result = _sum(mutations)
     return sum_result[0] if sum_result[1]
     
@@ -9,7 +14,8 @@ class Hash
     if concat.is_a?(String)
       return concat
     end
-
+      
+  
     self.each {|a, z| self[a] = z.mutate(mutations)}
   end
 
@@ -27,8 +33,27 @@ class Hash
     if self.key?(:_merge)
       self.merge!(mutations.dig_str(self[:_merge], mutations))
       self.delete(:_merge)
+      return [self, true]
     end
   
+    [self, false]
+  end
+
+  # { _loop: { _items: "x[a, b]", _block: {y} } } = [{y(x.a)}, y(x.b)]
+  def _loop(mutations)
+    if self.key?(:_loop)
+      # recursively mutate items before usage
+      items = mutations.dig_str(self[:_loop][:_items], mutations)
+      # for each item, add to result block
+      _results = []
+      items.each do |item|
+        _results << self[:_loop][:_block]
+          .dup.mutate(mutations.merge(item))
+      end
+
+      return [_results, true]
+    end
+
     self
   end
 

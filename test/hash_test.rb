@@ -20,6 +20,17 @@ class HashTest < Test::Unit::TestCase
       },
       key_e: {
         _sum: ["$mutation_sum.sum_a", 3]
+      },
+      key_f: {
+        _loop: {
+          _items: "mutation_f.items",
+          _block: {
+            name: "$value",
+            svcs: [
+              { "port": "$port" }
+            ]
+          }
+        }
       }
     }
   }
@@ -36,6 +47,12 @@ class HashTest < Test::Unit::TestCase
       sum_a: "$mutation_sum.sum_b",
       sum_b: "$mutation_sum.sum_c",
       sum_c: 2
+    },
+    mutation_f: {
+      items: [
+        { port: 80, value: "test_f_b" },
+        { value: "test_f", port: 443 },
+      ]
     }
   }
 
@@ -63,5 +80,42 @@ class HashTest < Test::Unit::TestCase
   test "hashes get mutated (_sum)($var string call)" do
     results = struct.mutate(mutations)
     assert_equal results[:key_a][:key_e], 5
+  end
+
+  test "hashes get mutated (_loop)" do
+    results = struct.mutate(mutations)
+    assert_equal results[:key_a][:key_f][0][:name], "test_f_b"
+    assert_equal results[:key_a][:key_f][1][:name], "test_f"
+    assert_equal results[:key_a][:key_f][0][:svcs][0][:port], 80
+    assert_equal results[:key_a][:key_f][1][:svcs][0][:port], 80
+  end
+
+  test "hashes get mutated (_loop in _loop)" do
+    local_struct = {
+      key_a: {
+        _loop: {
+          _items: "items",
+          _block: {
+            value: "$value",
+            sub_loop: {
+              _loop: {
+                _items: "items",
+                _block: {
+                  sub_value: "$sub_value" } } } } } } }
+
+    local_mutations = {
+      items: [
+        { value: "v-1", sub_value: "sv-1" },
+        { value: "v-2", sub_value: "sv-2" }
+      ]
+    }
+
+    results = local_struct.mutate(local_mutations)
+    assert_equal results[:key_a][0][:value], "v-1"
+    assert_equal results[:key_a][0][:sub_loop][0][:sub_value], "sv-1"
+    assert_equal results[:key_a][0][:sub_loop][1][:sub_value], "sv-2"
+    assert_equal results[:key_a][1][:value], "v-2"
+    assert_equal results[:key_a][1][:sub_loop][0][:sub_value], "sv-1"
+    assert_equal results[:key_a][1][:sub_loop][1][:sub_value], "sv-2"
   end
 end
