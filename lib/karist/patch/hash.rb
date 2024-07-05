@@ -6,6 +6,11 @@ class Hash
     merge_result = _merge(mutations)
     return merge_result[0] if merge_result[1]
 
+    unless_result = _unless(mutations)
+    return unless_result[0] if unless_result[1]
+
+    if_result = _if(mutations)
+    return if_result[0] if if_result[1]
     
     sum_result = _sum(mutations)
     return sum_result[0] if sum_result[1]
@@ -19,6 +24,81 @@ class Hash
     self.each {|a, z| self[a] = z.mutate(mutations)}
   end
 
+  def _unless(mutations)
+    if self.key?(:_unless)
+      all_conditions_state = self[:_unless].all? do |cond|
+        _runcond(cond, mutations)
+      end
+
+      # If all conditions are true, we return nil.
+      if all_conditions_state
+        return [nil, true]
+      end
+
+      self.delete(:_unless)
+      return [self, true]
+    end
+
+    [self, false]
+  end
+
+  def _if(mutations)
+    if self.key?(:_if)
+      all_conditions_state = self[:_if].all? do |cond|
+        _runcond(cond, mutations)
+      end
+
+      # If not all conditions are true, we return nil.
+      unless all_conditions_state
+        return [nil, true]
+      end
+
+      self.delete(:_if)
+      return [self, true]
+    end
+
+    [self, false]
+  end
+
+  def _runcond(cond, mutations)
+    case cond
+    in {_in: [needle, haystack]}
+      haystack.mutate(mutations).include?(needle.mutate(mutations))
+      
+    in {_null: vars} 
+      vars.all? {|x| x.mutate(mutations).nil? }
+
+    in {_present: vars}
+      vars.all? {|x| !x.mutate(mutations).nil? }
+
+    in {_eq: [first, second]} 
+      first.mutate(mutations).eql?(second.mutate(mutations))
+
+    in {_ne: [first, second]} 
+      !first.mutate(mutations).eql?(second.mutate(mutations))
+
+    in {_gt: [first, second]}
+      first.mutate(mutations) > second.mutate(mutations)
+
+    in {_lt: [first, second]}
+      first.mutate(mutations) < second.mutate(mutations)
+
+    in {_ge: [first, second]}
+      first.mutate(mutations) >= second.mutate(mutations)
+
+    in {_le: [first, second]}
+      first.mutate(mutations) <= second.mutate(mutations)
+    
+    # _or should evaluated by top-level _if as true or false. 
+    in {_or: or_conds}
+      or_conds.any? do |cond|
+        _runcond(cond, mutations)
+      end
+
+    else
+      raise StandardError, "#{cond.to_s} is not a valid condition"
+    end
+  end
   # { _sum: [x, y, z]} = x + (y + z)
   def _sum(mutations)
     if self.key?(:_sum)
