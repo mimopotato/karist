@@ -23,6 +23,17 @@ class KaristCLI < Thor
     exit(0)
   end
 
+  desc "version", "Shows Karist CLI version"
+  def version
+    puts <<~EOF
+      Karist #{::VERSION}
+      Found a bug ? Open an issue : https://github.com/mimopotato/karist
+      Wanna support the development ? Fork and open PR.
+    EOF
+
+    exit(0)
+  end
+
   desc "render ENV", "Render releases from environment ENV", default: "development"
   option :dry_run, type: :boolean, desc: "Shows result from mutations to STDOUT", default: false
   option :root, type: :string, desc: "Path to root Karist project", default: Dir.pwd

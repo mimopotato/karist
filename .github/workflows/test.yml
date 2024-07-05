@@ -25,3 +25,9 @@ jobs:
         run: bundle install
       - name: Run tests
         run: TESTOPTS="-v" bundle exec rake test
+      - name: Test command line
+        run: |
+          bin/karist version
+          bin/karist init .
+          test -d ./examples
+          
