@@ -32,6 +32,11 @@ class Hash
 
       # If all conditions are true, we return nil.
       if all_conditions_state
+        if self.key?(:_else)
+          return [self[:_else], true]
+        end
+
+        self.delete(:_else)
         return [nil, true]
       end
 
@@ -50,6 +55,11 @@ class Hash
 
       # If not all conditions are true, we return nil.
       unless all_conditions_state
+        if self.key?(:_else)
+          return [self[:_else], true]
+        end
+
+        self.delete(:_unless)
         return [nil, true]
       end
 

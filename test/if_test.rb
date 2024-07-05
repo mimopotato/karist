@@ -120,5 +120,31 @@ class IfTest < Test::Unit::TestCase
 
     assert_equal valid_cond.mutate({}), {key: {valid: true}}
   end
+
+  test "_else is implemented" do
+    struct = {
+      key: {
+        _if: [{_eq: [1, 2]}],
+        subkey: "value-if",
+        _else: {
+          subkey: "value-else"
+        }
+      }
+    }
+
+    assert_equal struct.mutate({}), {key: {subkey: "value-else"}}
+
+    struct = {
+      key: {
+        _unless: [{_eq: [1, 1]}],
+        subkey: "value-unless",
+        _else: {
+          subkey: "value-else"
+        }
+      }
+    }
+
+    assert_equal struct.mutate({}), {key: {subkey: "value-else"}}
+  end
 end
 
